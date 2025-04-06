@@ -49,7 +49,7 @@ namespace MunicipalManagementSystem.Controllers
         // GET: Reports/Create
         public IActionResult Create()
         {
-            ViewData["CitizenID"] = new SelectList(_context.Citizens, "CitizenID", "Address");
+            ViewData["CitizenID"] = new SelectList(_context.Citizen, "CitizenID", "Address");
             ViewData["StaffID"] = new SelectList(_context.Staff, "StaffID", "Department");
             return View();
         }
@@ -67,7 +67,7 @@ namespace MunicipalManagementSystem.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CitizenID"] = new SelectList(_context.Citizens, "CitizenID", "Address", report.CitizenID);
+            ViewData["CitizenID"] = new SelectList(_context.Citizen, "CitizenID", "Address", report.CitizenID);
             ViewData["StaffID"] = new SelectList(_context.Staff, "StaffID", "Department", report.StaffID);
             return View(report);
         }
@@ -85,7 +85,7 @@ namespace MunicipalManagementSystem.Controllers
             {
                 return NotFound();
             }
-            ViewData["CitizenID"] = new SelectList(_context.Citizens, "CitizenID", "Address", report.CitizenID);
+            ViewData["CitizenID"] = new SelectList(_context.Citizen, "CitizenID", "Address", report.CitizenID);
             ViewData["StaffID"] = new SelectList(_context.Staff, "StaffID", "Department", report.StaffID);
             return View(report);
         }
@@ -122,7 +122,7 @@ namespace MunicipalManagementSystem.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CitizenID"] = new SelectList(_context.Citizens, "CitizenID", "Address", report.CitizenID);
+            ViewData["CitizenID"] = new SelectList(_context.Citizen, "CitizenID", "Address", report.CitizenID);
             ViewData["StaffID"] = new SelectList(_context.Staff, "StaffID", "Department", report.StaffID);
             return View(report);
         }

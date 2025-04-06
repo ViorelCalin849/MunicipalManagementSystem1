@@ -26,6 +26,5 @@ namespace MunicipalManagementSystem.Models {
         [DataType(DataType.Date)]
         public DateTime HireDate { get; set; } = DateTime.Now;
 
-        public ICollection<ServiceRequest>? ServiceRequests { get; set; }
     }
 }

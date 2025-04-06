@@ -22,7 +22,7 @@ namespace MunicipalManagementSystem.Controllers
         // GET: Citizens
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Citizens.ToListAsync());
+            return View(await _context.Citizen.ToListAsync());
         }
 
         // GET: Citizens/Details/5
@@ -33,7 +33,7 @@ namespace MunicipalManagementSystem.Controllers
                 return NotFound();
             }
 
-            var citizen = await _context.Citizens
+            var citizen = await _context.Citizen
                 .FirstOrDefaultAsync(m => m.CitizenID == id);
             if (citizen == null)
             {
@@ -72,7 +72,7 @@ namespace MunicipalManagementSystem.Controllers
                 return NotFound();
             }
 
-            var citizen = await _context.Citizens.FindAsync(id);
+            var citizen = await _context.Citizen.FindAsync(id);
             if (citizen == null)
             {
                 return NotFound();
@@ -123,7 +123,7 @@ namespace MunicipalManagementSystem.Controllers
                 return NotFound();
             }
 
-            var citizen = await _context.Citizens
+            var citizen = await _context.Citizen
                 .FirstOrDefaultAsync(m => m.CitizenID == id);
             if (citizen == null)
             {
@@ -138,10 +138,10 @@ namespace MunicipalManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var citizen = await _context.Citizens.FindAsync(id);
+            var citizen = await _context.Citizen.FindAsync(id);
             if (citizen != null)
             {
-                _context.Citizens.Remove(citizen);
+                _context.Citizen.Remove(citizen);
             }
 
             await _context.SaveChangesAsync();
@@ -150,7 +150,7 @@ namespace MunicipalManagementSystem.Controllers
 
         private bool CitizenExists(int id)
         {
-            return _context.Citizens.Any(e => e.CitizenID == id);
+            return _context.Citizen.Any(e => e.CitizenID == id);
         }
     }
 }

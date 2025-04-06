@@ -14,14 +14,9 @@ namespace MunicipalManagementSystem.Models
         public int CitizenID { get; set; }
 
         [Required]
-        [Display(Name = "Staff")]
-        public int StaffID { get; set; }
-
-        [Required]
         [Display(Name = "Service Type")]
         public string ServiceType { get; set; }
 
-        [Required]
         [Display(Name = "Request Date")]
         public DateTime RequestDate { get; set; } = DateTime.Now;
 
@@ -32,7 +27,5 @@ namespace MunicipalManagementSystem.Models
         [ForeignKey("CitizenID")]
         public Citizen Citizen { get; set; }
 
-        [ForeignKey("StaffID")]
-        public Staff Staff { get; set; }
     }
 }

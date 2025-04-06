@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -17,14 +18,11 @@ namespace MunicipalManagementSystem.Controllers
             _context = context;
         }
 
-        // GET: ServiceRequests
         public async Task<IActionResult> Index()
         {
-            var requests = await _context.ServiceRequests
-                .Include(r => r.Citizen)
-                .Include(r => r.Staff)
-                .ToListAsync();
-            return View(requests);
+            return View(await _context.ServiceRequests
+                .Include(sr => sr.Citizen)
+                .ToListAsync());
         }
 
         // GET: ServiceRequests/Details/5
@@ -37,101 +35,131 @@ namespace MunicipalManagementSystem.Controllers
 
             var serviceRequest = await _context.ServiceRequests
                 .Include(r => r.Citizen)
-                .Include(r => r.Staff)
                 .FirstOrDefaultAsync(m => m.RequestID == id);
 
             return serviceRequest == null ? NotFound() : View(serviceRequest);
         }
 
         // GET: ServiceRequests/Create
+        [HttpGet]
         public async Task<IActionResult> Create()
         {
-            await PopulateDropdowns();
+            ViewBag.Citizens = await _context.Citizen.OrderBy(c => c.CitizenID).ToListAsync();
             return View();
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(ServiceRequest serviceRequest)
+        public async Task<IActionResult> Create(ServiceRequest serviceRequests)
         {
-            // Manually validate referenced IDs
-            var citizenExists = await _context.Citizens.AnyAsync(c => c.CitizenID == serviceRequest.CitizenID);
-            var staffExists = await _context.Staff.AnyAsync(s => s.StaffID == serviceRequest.StaffID);
-
-            if (!citizenExists)
-                ModelState.AddModelError("CitizenID", "Selected citizen does not exist.");
-            if (!staffExists)
-                ModelState.AddModelError("StaffID", "Selected staff member does not exist.");
-
-            if (ModelState.IsValid)
-            {
-                serviceRequest.RequestDate = DateTime.Now;
-                _context.Add(serviceRequest);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-
-            // Repopulate dropdowns if validation fails
-            ViewBag.Citizens = await _context.Citizens.ToListAsync();
-            ViewBag.Staff = await _context.Staff.ToListAsync();
-            return View(serviceRequest);
-        }
-
-        // GET: ServiceRequests/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null) return NotFound();
-
-            var serviceRequest = await _context.ServiceRequests.FindAsync(id);
-            if (serviceRequest == null) return NotFound();
-
-            await PopulateDropdowns();
-            return View(serviceRequest);
-        }
-
-        // POST: ServiceRequests/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, ServiceRequest serviceRequest)
-        {
-            if (id != serviceRequest.RequestID) return NotFound();
+            Debug.WriteLine($"Received CitizenID: {serviceRequests.CitizenID}");
+            Debug.WriteLine($"Received ServiceType: {serviceRequests.ServiceType}");
+            Debug.WriteLine($"Received Status: {serviceRequests.Status}");
 
             try
             {
-                if (ModelState.IsValid)
+                // Manual validation
+                var validationErrors = new List<string>();
+
+                if (serviceRequests.CitizenID <= 0)
                 {
-                    // Validate existence of related entities
-                    if (!await _context.Citizens.AnyAsync(c => c.CitizenID == serviceRequest.CitizenID))
-                    {
-                        ModelState.AddModelError("CitizenID", "Selected citizen does not exist");
-                    }
-                    else if (!await _context.Staff.AnyAsync(s => s.StaffID == serviceRequest.StaffID))
-                    {
-                        ModelState.AddModelError("StaffID", "Selected staff member does not exist");
-                    }
-                    else
-                    {
-                        _context.Update(serviceRequest);
-                        await _context.SaveChangesAsync();
-                        return RedirectToAction(nameof(Index));
-                    }
+                    validationErrors.Add("Please enter a valid Citizen ID");
+                    ModelState.AddModelError("CitizenID", "Invalid Citizen ID");
                 }
+
+                if (string.IsNullOrWhiteSpace(serviceRequests.ServiceType))
+                {
+                    validationErrors.Add("Service Type is required");
+                    ModelState.AddModelError("ServiceType", "Required");
+                }
+
+                if (string.IsNullOrWhiteSpace(serviceRequests.Status))
+                {
+                    validationErrors.Add("Status are required");
+                    ModelState.AddModelError("Status", "Required");
+                }
+
+                if (validationErrors.Any())
+                {
+                    TempData["Error"] = string.Join("<br>", validationErrors);
+                }
+                else
+                {
+                    serviceRequests.RequestDate = DateTime.Now;
+                    serviceRequests.Status = "Under Review";
+                    _context.ServiceRequests.Add(serviceRequests);
+                    await _context.SaveChangesAsync();
+                    TempData["Success"] = "Service REquest created successfully!";
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            catch (DbUpdateException ex)
+            {
+                ModelState.AddModelError("", "Database error: " + ex.InnerException?.Message ?? ex.Message);
+                TempData["Error"] = "Failed to save to database. Please try again.";
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Error: " + ex.Message);
+                TempData["Error"] = "An unexpected error occurred.";
+            }
+
+            ViewBag.Citizens = await _context.Citizen.OrderBy(c => c.CitizenID).ToListAsync();
+            return View(serviceRequests);
+        }
+
+        // GET: ServiceRequest/Edit
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var serviceRequest = await _context.ServiceRequests.FindAsync(id);
+            if (serviceRequest == null)
+            {
+                return NotFound();
+            }
+            return View(serviceRequest);
+        }
+
+        // POST: ServiceRequest/Edit
+        [HttpPost]
+        public async Task<IActionResult> Edit(
+            int RequestID,
+            int CitizenID,
+            string ServiceType,
+            string Status)
+        {
+            var serviceRequest = await _context.ServiceRequests.FindAsync(RequestID);
+            if (serviceRequest == null)
+            {
+                return NotFound();
+            }
+
+            serviceRequest.CitizenID = CitizenID;
+            serviceRequest.ServiceType = ServiceType;
+            serviceRequest.Status = Status;
+
+            try
+            {
+                _context.Update(serviceRequest);
+                await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ServiceRequestExists(serviceRequest.RequestID))
+                if (!ServiceRequestExists(RequestID))
+                {
                     return NotFound();
-                throw;
+                }
+                else
+                {
+                    throw;
+                }
             }
-            catch (DbUpdateException)
-            {
-                ModelState.AddModelError("", "Unable to save changes. " +
-                    "Try again, and if the problem persists, " +
-                    "contact your system administrator.");
-            }
-
-            await PopulateDropdowns();
-            return View(serviceRequest);
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: ServiceRequests/Delete/5
@@ -141,7 +169,6 @@ namespace MunicipalManagementSystem.Controllers
 
             var serviceRequest = await _context.ServiceRequests
                 .Include(r => r.Citizen)
-                .Include(r => r.Staff)
                 .FirstOrDefaultAsync(m => m.RequestID == id);
 
             return serviceRequest == null ? NotFound() : View(serviceRequest);
@@ -155,30 +182,14 @@ namespace MunicipalManagementSystem.Controllers
             var serviceRequest = await _context.ServiceRequests.FindAsync(id);
             if (serviceRequest == null) return RedirectToAction(nameof(Index));
 
-            try
-            {
-                _context.ServiceRequests.Remove(serviceRequest);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            catch (DbUpdateException)
-            {
-                ModelState.AddModelError("", "Unable to delete. " +
-                    "Try again, and if the problem persists, " +
-                    "contact your system administrator.");
-                return View("Delete", serviceRequest);
-            }
+            _context.ServiceRequests.Remove(serviceRequest);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         private bool ServiceRequestExists(int id)
         {
             return _context.ServiceRequests.Any(e => e.RequestID == id);
-        }
-
-        private async Task PopulateDropdowns()
-        {
-            ViewBag.Citizens = await _context.Citizens.ToListAsync();
-            ViewBag.Staff = await _context.Staff.ToListAsync();
         }
     }
 }

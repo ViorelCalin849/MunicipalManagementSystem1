@@ -5,7 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add DbContext
 builder.Services.AddDbContext<MunicipalDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("MunicipalDb")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add MVC
 builder.Services.AddControllersWithViews();
