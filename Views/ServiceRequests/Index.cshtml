@@ -1,0 +1,43 @@
+﻿@model IEnumerable<ServiceRequest>
+@{
+    ViewData["Title"] = "Service Requests";
+    Layout = "_Layout";
+}
+
+<h1>Service Requests</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-success">Create New Request</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Request ID</th>
+            <th>Service Type</th>
+            <th>Citizen</th>
+            <th>Assigned Staff</th>
+            <th>Request Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.RequestID</td>
+                <td>@item.ServiceType</td>
+                <td>@item.Citizen?.FullName</td>
+                <td>@item.Staff?.FullName</td>
+                <td>@item.RequestDate.ToString("yyyy-MM-dd")</td>
+                <td>@item.Status</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.RequestID" class="btn btn-primary">Edit</a>
+                    <a asp-action="Details" asp-route-id="@item.RequestID" class="btn btn-info">Details</a>
+                    <a asp-action="Delete" asp-route-id="@item.RequestID" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

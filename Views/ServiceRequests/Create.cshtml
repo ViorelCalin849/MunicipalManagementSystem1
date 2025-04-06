@@ -1,0 +1,48 @@
+﻿@model ServiceRequest
+@{
+    ViewData["Title"] = "Create Service Request";
+    Layout = "_Layout";
+}
+
+<h1>Create Service Request</h1>
+
+<form method="post">
+    <!-- Simplified form tag -->
+    <div class="form-group">
+        <label>Service Type</label>
+        <input name="ServiceType" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Citizen</label>
+        <select name="CitizenID" class="form-control">
+            @foreach (var citizen in ViewBag.Citizens)
+            {
+                <option value="@citizen.CitizenID">@citizen.FullName</option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Staff</label>
+        <select name="StaffID" class="form-control">
+            @foreach (var staff in ViewBag.Staff)
+            {
+                <option value="@staff.StaffID">@staff.FullName</option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Status</label>
+        <select name="Status" class="form-control">
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>
+
+<a asp-action="Index">Back to List</a>
