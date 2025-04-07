@@ -44,7 +44,7 @@ namespace MunicipalManagementSystem.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            ViewBag.Citizens = await _context.Citizen.OrderBy(c => c.CitizenID).ToListAsync();
+            ViewBag.Citizens = await _context.Citizens.OrderBy(c => c.CitizenID).ToListAsync();
             return View();
         }
 
@@ -105,7 +105,7 @@ namespace MunicipalManagementSystem.Controllers
                 TempData["Error"] = "An unexpected error occurred.";
             }
 
-            ViewBag.Citizens = await _context.Citizen.OrderBy(c => c.CitizenID).ToListAsync();
+            ViewBag.Citizens = await _context.Citizens.OrderBy(c => c.CitizenID).ToListAsync();
             return View(serviceRequests);
         }
 

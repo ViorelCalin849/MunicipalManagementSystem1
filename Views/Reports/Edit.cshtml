@@ -1,59 +1,74 @@
-﻿@model MunicipalManagementSystem.Models.Report
-
+﻿@model Report
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit Report";
+    Layout = "_Layout";
 }
 
-<h1>Edit</h1>
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">Edit Report</h2>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="ReportID" />
+                <input type="hidden" asp-for="SubmissionDate" />
 
-<h4>Report</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="ReportID" />
-            <div class="form-group">
-                <label asp-for="CitizenID" class="control-label"></label>
-                <select asp-for="CitizenID" class="form-control" asp-items="ViewBag.CitizenID"></select>
-                <span asp-validation-for="CitizenID" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="StaffID" class="control-label"></label>
-                <select asp-for="StaffID" class="form-control" asp-items="ViewBag.StaffID"></select>
-                <span asp-validation-for="StaffID" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ReportType" class="control-label"></label>
-                <input asp-for="ReportType" class="form-control" />
-                <span asp-validation-for="ReportType" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Details" class="control-label"></label>
-                <input asp-for="Details" class="form-control" />
-                <span asp-validation-for="Details" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="SubmissionDate" class="control-label"></label>
-                <input asp-for="SubmissionDate" class="form-control" />
-                <span asp-validation-for="SubmissionDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Status" class="control-label"></label>
-                <input asp-for="Status" class="form-control" />
-                <span asp-validation-for="Status" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="ReportType" class="form-label fw-bold"></label>
+                            <input asp-for="ReportType" class="form-control" />
+                            <span asp-validation-for="ReportType" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="CitizenID" class="form-label fw-bold"></label>
+                            <select asp-for="CitizenID" class="form-control"
+                                    asp-items="@(new SelectList(ViewBag.Citizens, "CitizenID", "FullName"))">
+                                <option value="">-- Select Citizen --</option>
+                            </select>
+                            <span asp-validation-for="CitizenID" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="Details" class="form-label fw-bold"></label>
+                            <textarea asp-for="Details" class="form-control" rows="4"></textarea>
+                            <span asp-validation-for="Details" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Status" class="form-label fw-bold"></label>
+                            <select asp-for="Status" class="form-control">
+                                <option value="Under Review">Under Review</option>
+                                <option value="Investigation Ongoing">Investigation Ongoing</option>
+                                <option value="Resolved">Resolved</option>
+                            </select>
+                            <span asp-validation-for="Status" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-success px-4">
+                        Save Changes
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary ms-2">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

@@ -1,65 +1,41 @@
-﻿@model IEnumerable<MunicipalManagementSystem.Models.Report>
-
+﻿@model IEnumerable<Report>
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Reports";
+    Layout = "_Layout";
 }
 
-<h1>Index</h1>
+<h1>Reports</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-success">Create New Report</a>
 </p>
-<table class="table">
+
+<table class="table table-striped">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.ReportType)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Details)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SubmissionDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Citizen)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Staff)
-            </th>
-            <th></th>
+            <th>Report ID</th>
+            <th>Report Type</th>
+            <th>Citizen</th>
+            <th>Submission Date</th>
+            <th>Status</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.ReportType)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Details)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SubmissionDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Status)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Citizen.Address)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Staff.Department)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ReportID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ReportID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ReportID">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.ReportID</td>
+                <td>@item.ReportType</td>
+                <td>@item.Citizen?.FullName</td>
+                <td>@item.SubmissionDate.ToString("yyyy-MM-dd")</td>
+                <td>@item.Status</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ReportID" class="btn btn-primary">Edit</a>
+                    <a asp-action="Details" asp-route-id="@item.ReportID" class="btn btn-info">Details</a>
+                    <a asp-action="Delete" asp-route-id="@item.ReportID" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
